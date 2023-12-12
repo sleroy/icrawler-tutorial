@@ -1,17 +1,26 @@
-from icrawler.builtin import GoogleImageCrawler
+from icrawler.builtin import BingImageCrawler
+import os
 
-def download_images(query, limit):
-    google_crawler = GoogleImageCrawler(
-        feeder_threads=1,
-        parser_threads=2,
-        downloader_threads=4,
-        storage={'root_dir': 'images'})
+imageFolder = 'images'
+
+
+def download_images(imageFolder, query, limit):
+    imageFolder=os.path.join(imageFolder, query)
+    os.makedirs(name=imageFolder,
+                exist_ok=True)
+    google_crawler = BingImageCrawler(parser_threads=1,
+                                      downloader_threads=1,
+                                      storage={'root_dir': imageFolder})
     filters = dict(
+        type="photo",
         size='large',
-        color='orange',
-        license='commercial,modify',
-        date=((2017, 1, 1), (2017, 11, 30)))
-    google_crawler.crawl(keyword=query, filters=filters, max_num=1000, file_idx_offset=0)
+        date="pastyear")
+    google_crawler.crawl(keyword=query,
+                         max_num=limit,
+                         filters=filters)
+    return os.listdir(imageFolder)
+
+
 # Задаем список достопримечательностей и количество изображений, которые нужно загрузить
 sights = [
     "Кинотеатр Художественный на Арбате",
@@ -23,9 +32,9 @@ sights = [
     "Хард-рок кафе на Арбате",
     "Дома-книжки на Новом Арбате"
 ]
-num_images = 200
+num_images = 1
 
 for sight in sights:
     print(f"Загрузка изображений достопримечательности '{sight}':")
-    image_paths = download_images(sight, num_images)
+    image_paths=download_images(imageFolder, sight, num_images)
     print(f"Загружено {len(image_paths)} изображений\n")
